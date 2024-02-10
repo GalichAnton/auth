@@ -49,14 +49,14 @@ func (s *server) Update(ctx context.Context, req *desc.UpdateRequest) (*emptypb.
 	log.Printf("User with [id]=%d updated", req.GetId())
 	log.Printf("Context =%v", ctx)
 
-	return nil, nil
+	return &emptypb.Empty{}, nil
 }
 
 func (s *server) Delete(ctx context.Context, req *desc.DeleteRequest) (*emptypb.Empty, error) {
 	log.Printf("User with [id]=%d deleted", req.GetId())
 	log.Printf("Context =%v", ctx)
 
-	return nil, nil
+	return &emptypb.Empty{}, nil
 }
 
 func main() {

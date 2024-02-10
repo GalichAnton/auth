@@ -48,6 +48,16 @@ func (s *server) Create(ctx context.Context, req *desc.CreateRequest) (*desc.Cre
 func (s *server) Update(ctx context.Context, req *desc.UpdateRequest) (*emptypb.Empty, error) {
 	log.Printf("User with [id]=%d updated", req.GetId())
 	log.Printf("Context =%v", ctx)
+
+	empty := emptypb.Empty{}
+
+	return &empty, nil
+}
+
+func (s *server) Delete(ctx context.Context, req *desc.DeleteRequest) (*emptypb.Empty, error) {
+	log.Printf("User with [id]=%d deleted", req.GetId())
+	log.Printf("Context =%v", ctx)
+
 	empty := emptypb.Empty{}
 
 	return &empty, nil

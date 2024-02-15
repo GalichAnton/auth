@@ -22,7 +22,7 @@ func NewUserServer(repository repository.UserRepository) *UserServer {
 }
 
 func (s *UserServer) Create(ctx context.Context, req *desc.CreateRequest) (*desc.CreateResponse, error) {
-	newUser := user.UserInfo{
+	newUser := user.Info{
 		Name:     req.GetName(),
 		Email:    req.GetEmail(),
 		Password: req.GetPassword(),
@@ -56,7 +56,7 @@ func (s *UserServer) Get(ctx context.Context, req *desc.GetRequest) (*desc.GetRe
 }
 
 func (s *UserServer) Update(ctx context.Context, req *desc.UpdateRequest) (*emptypb.Empty, error) {
-	var userInfo user.UserInfo
+	var userInfo user.Info
 
 	if req.Name != nil {
 		userInfo.Name = req.GetName().GetValue()

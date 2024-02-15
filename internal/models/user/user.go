@@ -9,13 +9,12 @@ import (
 
 type User struct {
 	ID        int64
-	Info      UserInfo
+	Info      Info
 	CreatedAt time.Time
 	UpdatedAt sql.NullTime
 }
 
-// UserInfo - .
-type UserInfo struct {
+type Info struct {
 	Name     string
 	Email    string
 	Password string

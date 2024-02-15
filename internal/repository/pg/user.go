@@ -22,7 +22,7 @@ func NewUserRepository(pool *pgxpool.Pool) *UserRepository {
 	return &UserRepository{pool: pool}
 }
 
-func (u *UserRepository) Create(ctx context.Context, info *user.UserInfo) (int64, error) {
+func (u *UserRepository) Create(ctx context.Context, info *user.Info) (int64, error) {
 	builderInsert := sq.Insert(tableName).
 		PlaceholderFormat(sq.Dollar).
 		Columns("name", "email", "password", "role").
@@ -70,7 +70,7 @@ func (u *UserRepository) Get(ctx context.Context, id int64) (*user.User, error) 
 	return &newUser, nil
 }
 
-func (u *UserRepository) Update(ctx context.Context, id int64, info *user.UserInfo) error {
+func (u *UserRepository) Update(ctx context.Context, id int64, info *user.Info) error {
 	builderUpdate := sq.Update(tableName).
 		PlaceholderFormat(sq.Dollar).
 		Set("name", info.Name).

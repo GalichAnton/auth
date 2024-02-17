@@ -3,7 +3,7 @@ package pg
 import (
 	"context"
 	"database/sql"
-	"log"
+	"time"
 
 	"github.com/GalichAnton/auth/internal/models/user"
 	sq "github.com/Masterminds/squirrel"
@@ -11,7 +11,14 @@ import (
 )
 
 const (
-	tableName = "users"
+	tableName    = "users"
+	colID        = "id"
+	colName      = "name"
+	colEmail     = "email"
+	colPassword  = "password"
+	colRole      = "role"
+	colCreatedAt = "created_at"
+	colUpdatedAt = "updated_at"
 )
 
 // UserRepository - .
@@ -28,8 +35,8 @@ func NewUserRepository(pool *pgxpool.Pool) *UserRepository {
 func (u *UserRepository) Create(ctx context.Context, info *user.Info) (int64, error) {
 	builderInsert := sq.Insert(tableName).
 		PlaceholderFormat(sq.Dollar).
-		Columns("name", "email", "password", "role").
-		Values(info.Name, info.Email, info.Password, info.Role).
+		Columns(colName, colEmail, colPassword, colRole, colCreatedAt).
+		Values(info.Name, info.Email, info.Password, info.Role, time.Now()).
 		Suffix("RETURNING id")
 
 	query, args, err := builderInsert.ToSql()
@@ -48,10 +55,10 @@ func (u *UserRepository) Create(ctx context.Context, info *user.Info) (int64, er
 
 // Get - .
 func (u *UserRepository) Get(ctx context.Context, id int64) (*user.User, error) {
-	builderSelect := sq.Select("id", "name", "email", "password", "role", "created_at", "updated_at").
+	builderSelect := sq.Select(colID, colName, colEmail, colPassword, colRole, colCreatedAt, colUpdatedAt).
 		From(tableName).
 		PlaceholderFormat(sq.Dollar).
-		Where(sq.Eq{"id": id})
+		Where(sq.Eq{colID: id})
 
 	query, args, err := builderSelect.ToSql()
 	if err != nil {
@@ -69,6 +76,7 @@ func (u *UserRepository) Get(ctx context.Context, id int64) (*user.User, error) 
 	}
 	if updatedAt.Valid {
 		newUser.UpdatedAt.Time = updatedAt.Time
+		newUser.UpdatedAt.Valid = updatedAt.Valid
 	}
 
 	return &newUser, nil
@@ -78,10 +86,11 @@ func (u *UserRepository) Get(ctx context.Context, id int64) (*user.User, error) 
 func (u *UserRepository) Update(ctx context.Context, id int64, info *user.Info) error {
 	builderUpdate := sq.Update(tableName).
 		PlaceholderFormat(sq.Dollar).
-		Set("name", info.Name).
-		Set("email", info.Email).
-		Set("role", info.Role).
-		Where(sq.Eq{"id": id})
+		Set(colName, info.Name).
+		Set(colEmail, info.Email).
+		Set(colRole, info.Role).
+		Set(colUpdatedAt, time.Now()).
+		Where(sq.Eq{colID: id})
 
 	query, args, err := builderUpdate.ToSql()
 	if err != nil {
@@ -100,11 +109,11 @@ func (u *UserRepository) Update(ctx context.Context, id int64, info *user.Info) 
 func (u *UserRepository) Delete(ctx context.Context, id int64) error {
 	builderDelete := sq.Delete(tableName).
 		PlaceholderFormat(sq.Dollar).
-		Where(sq.Eq{"id": id})
+		Where(sq.Eq{colID: id})
 
 	query, args, err := builderDelete.ToSql()
 	if err != nil {
-		log.Fatalf("failed to build query: %v", err)
+		return err
 	}
 
 	_, err = u.pool.Exec(ctx, query, args...)

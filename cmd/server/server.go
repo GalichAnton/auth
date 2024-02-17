@@ -49,13 +49,19 @@ func (s *UserServer) Get(ctx context.Context, req *desc.GetRequest) (*desc.GetRe
 		return nil, err
 	}
 
+	var updatedAt *timestamppb.Timestamp
+
+	if dbUser.UpdatedAt.Valid {
+		updatedAt = timestamppb.New(dbUser.UpdatedAt.Time)
+	}
+
 	return &desc.GetResponse{
 		Id:        dbUser.ID,
 		Name:      dbUser.Info.Name,
 		Email:     dbUser.Info.Email,
 		Role:      dbUser.Info.Role,
 		CreatedAt: timestamppb.New(dbUser.CreatedAt),
-		UpdatedAt: timestamppb.New(dbUser.UpdatedAt.Time),
+		UpdatedAt: updatedAt,
 	}, nil
 }
 
@@ -85,7 +91,6 @@ func (s *UserServer) Update(ctx context.Context, req *desc.UpdateRequest) (*empt
 
 // Delete - .
 func (s *UserServer) Delete(ctx context.Context, req *desc.DeleteRequest) (*emptypb.Empty, error) {
-
 	err := s.repository.Delete(ctx, req.GetId())
 	if err != nil {
 		return nil, err

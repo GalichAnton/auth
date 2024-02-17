@@ -2,6 +2,7 @@ package config
 
 import "github.com/joho/godotenv"
 
+// Load - .
 func Load(path string) error {
 	err := godotenv.Load(path)
 	if err != nil {
@@ -11,10 +12,12 @@ func Load(path string) error {
 	return nil
 }
 
+// GRPC - .
 type GRPC interface {
 	Address() string
 }
 
+// PGConfig - .
 type PGConfig interface {
 	DSN() string
 }

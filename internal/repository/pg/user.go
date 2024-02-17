@@ -14,14 +14,17 @@ const (
 	tableName = "users"
 )
 
+// UserRepository - .
 type UserRepository struct {
 	pool *pgxpool.Pool
 }
 
+// NewUserRepository - .
 func NewUserRepository(pool *pgxpool.Pool) *UserRepository {
 	return &UserRepository{pool: pool}
 }
 
+// Create - .
 func (u *UserRepository) Create(ctx context.Context, info *user.Info) (int64, error) {
 	builderInsert := sq.Insert(tableName).
 		PlaceholderFormat(sq.Dollar).
@@ -34,15 +37,16 @@ func (u *UserRepository) Create(ctx context.Context, info *user.Info) (int64, er
 		return 0, err
 	}
 
-	var userId int64
-	err = u.pool.QueryRow(ctx, query, args...).Scan(&userId)
+	var userID int64
+	err = u.pool.QueryRow(ctx, query, args...).Scan(&userID)
 	if err != nil {
 		return 0, err
 	}
 
-	return userId, nil
+	return userID, nil
 }
 
+// Get - .
 func (u *UserRepository) Get(ctx context.Context, id int64) (*user.User, error) {
 	builderSelect := sq.Select("id", "name", "email", "password", "role", "created_at", "updated_at").
 		From(tableName).
@@ -70,6 +74,7 @@ func (u *UserRepository) Get(ctx context.Context, id int64) (*user.User, error) 
 	return &newUser, nil
 }
 
+// Update - .
 func (u *UserRepository) Update(ctx context.Context, id int64, info *user.Info) error {
 	builderUpdate := sq.Update(tableName).
 		PlaceholderFormat(sq.Dollar).
@@ -91,6 +96,7 @@ func (u *UserRepository) Update(ctx context.Context, id int64, info *user.Info) 
 	return nil
 }
 
+// Delete - .
 func (u *UserRepository) Delete(ctx context.Context, id int64) error {
 	builderDelete := sq.Delete(tableName).
 		PlaceholderFormat(sq.Dollar).

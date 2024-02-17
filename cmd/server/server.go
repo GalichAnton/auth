@@ -10,17 +10,20 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+// UserServer - .
 type UserServer struct {
 	desc.UnimplementedUserV1Server
 	repository repository.UserRepository
 }
 
+// NewUserServer - .
 func NewUserServer(repository repository.UserRepository) *UserServer {
 	return &UserServer{
 		repository: repository,
 	}
 }
 
+// Create - .
 func (s *UserServer) Create(ctx context.Context, req *desc.CreateRequest) (*desc.CreateResponse, error) {
 	newUser := user.Info{
 		Name:     req.GetName(),
@@ -39,6 +42,7 @@ func (s *UserServer) Create(ctx context.Context, req *desc.CreateRequest) (*desc
 	}, nil
 }
 
+// Get - .
 func (s *UserServer) Get(ctx context.Context, req *desc.GetRequest) (*desc.GetResponse, error) {
 	dbUser, err := s.repository.Get(ctx, req.GetId())
 	if err != nil {
@@ -55,6 +59,7 @@ func (s *UserServer) Get(ctx context.Context, req *desc.GetRequest) (*desc.GetRe
 	}, nil
 }
 
+// Update - .
 func (s *UserServer) Update(ctx context.Context, req *desc.UpdateRequest) (*emptypb.Empty, error) {
 	var userInfo user.Info
 
@@ -78,6 +83,7 @@ func (s *UserServer) Update(ctx context.Context, req *desc.UpdateRequest) (*empt
 	return &emptypb.Empty{}, nil
 }
 
+// Delete - .
 func (s *UserServer) Delete(ctx context.Context, req *desc.DeleteRequest) (*emptypb.Empty, error) {
 
 	err := s.repository.Delete(ctx, req.GetId())

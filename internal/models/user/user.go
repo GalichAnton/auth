@@ -7,6 +7,7 @@ import (
 	desc "github.com/GalichAnton/auth/pkg/user_v1"
 )
 
+// User - .
 type User struct {
 	ID        int64
 	Info      Info
@@ -14,6 +15,7 @@ type User struct {
 	UpdatedAt sql.NullTime
 }
 
+// Info - .
 type Info struct {
 	Name     string
 	Email    string

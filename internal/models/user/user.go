@@ -3,8 +3,6 @@ package user
 import (
 	"database/sql"
 	"time"
-
-	desc "github.com/GalichAnton/auth/pkg/user_v1"
 )
 
 // User - .
@@ -20,5 +18,11 @@ type Info struct {
 	Name     string
 	Email    string
 	Password string
-	Role     desc.Role
+	Role     int32
+}
+
+// ToCreate - .
+type ToCreate struct {
+	Info
+	PasswordConfirm string
 }

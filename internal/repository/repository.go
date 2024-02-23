@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 
+	"github.com/GalichAnton/auth/internal/models/log"
 	"github.com/GalichAnton/auth/internal/models/user"
 )
 
@@ -12,4 +13,9 @@ type UserRepository interface {
 	Get(ctx context.Context, id int64) (*user.User, error)
 	Update(ctx context.Context, id int64, info *user.Info) error
 	Delete(ctx context.Context, id int64) error
+}
+
+// LogRepository - .
+type LogRepository interface {
+	Create(ctx context.Context, log *log.Info) error
 }

@@ -117,7 +117,7 @@ func (s *serviceProvider) UserService(ctx context.Context) services.UserService 
 	return s.userService
 }
 
-func (s *serviceProvider) NoteImpl(ctx context.Context) *user.Implementation {
+func (s *serviceProvider) UserImpl(ctx context.Context) *user.Implementation {
 	if s.userImpl == nil {
 		s.userImpl = user.NewImplementation(s.UserService(ctx))
 	}

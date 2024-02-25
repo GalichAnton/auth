@@ -22,28 +22,30 @@ func (s *service) Create(ctx context.Context, info *modelService.ToCreate) (int6
 		Role:     info.Role,
 	}
 
-	err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
-		id, errTx := s.userRepository.Create(ctx, &userInfo)
-		if errTx != nil {
-			return errTx
-		}
+	err := s.txManager.ReadCommitted(
+		ctx, func(ctx context.Context) error {
+			id, errTx := s.userRepository.Create(ctx, &userInfo)
+			if errTx != nil {
+				return errTx
+			}
 
-		newUserID = id
-		newLog := log.Info{
-			Action:   "create",
-			EntityID: id,
-		}
+			newUserID = id
+			newLog := log.Info{
+				Action:   "create",
+				EntityID: id,
+			}
 
-		errTx = s.logRepository.Create(ctx, &newLog)
-		if errTx != nil {
-			return errTx
-		}
+			errTx = s.logRepository.Create(ctx, &newLog)
+			if errTx != nil {
+				return errTx
+			}
 
-		return nil
-	})
+			return nil
+		},
+	)
 
 	if err != nil {
-		return newUserID, err
+		return 0, err
 	}
 
 	return newUserID, nil

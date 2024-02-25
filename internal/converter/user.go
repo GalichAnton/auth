@@ -44,10 +44,12 @@ func ToServiceUserInfo(info *desc.UserInfo) *modelService.Info {
 // ToServiceUserToCreate ...
 func ToServiceUserToCreate(info *desc.UserToCreate) *modelService.ToCreate {
 	return &modelService.ToCreate{
-		Info: modelService.Info{Name: info.Name,
+		Info: modelService.Info{
+			Name:     info.Name,
 			Email:    info.Email,
 			Password: info.Password,
-			Role:     int32(info.Role)},
+			Role:     int32(info.Role),
+		},
 		PasswordConfirm: info.PasswordConfirm,
 	}
 }

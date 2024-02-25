@@ -8,7 +8,7 @@ import (
 	"github.com/GalichAnton/auth/internal/config"
 )
 
-var _ config.GRPC = (*GRPCConfig)(nil)
+var _ config.GRPCConfig = (*GRPCConfig)(nil)
 
 const (
 	grpcHostEnvName = "GRPC_HOST"

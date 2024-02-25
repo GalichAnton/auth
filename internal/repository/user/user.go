@@ -1,13 +1,14 @@
-package pg
+package user
 
 import (
 	"context"
-	"database/sql"
 	"time"
 
-	"github.com/GalichAnton/auth/internal/models/user"
+	"github.com/GalichAnton/auth/internal/client/db"
+	serviceModel "github.com/GalichAnton/auth/internal/models/user"
+	"github.com/GalichAnton/auth/internal/repository/user/converter"
+	modelRepo "github.com/GalichAnton/auth/internal/repository/user/model"
 	sq "github.com/Masterminds/squirrel"
-	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 const (
@@ -21,18 +22,18 @@ const (
 	colUpdatedAt = "updated_at"
 )
 
-// UserRepository - .
-type UserRepository struct {
-	pool *pgxpool.Pool
+// Repository - .
+type Repository struct {
+	db db.Client
 }
 
 // NewUserRepository - .
-func NewUserRepository(pool *pgxpool.Pool) *UserRepository {
-	return &UserRepository{pool: pool}
+func NewUserRepository(db db.Client) *Repository {
+	return &Repository{db: db}
 }
 
 // Create - .
-func (u *UserRepository) Create(ctx context.Context, info *user.Info) (int64, error) {
+func (u *Repository) Create(ctx context.Context, info *serviceModel.Info) (int64, error) {
 	builderInsert := sq.Insert(tableName).
 		PlaceholderFormat(sq.Dollar).
 		Columns(colName, colEmail, colPassword, colRole, colCreatedAt).
@@ -44,8 +45,13 @@ func (u *UserRepository) Create(ctx context.Context, info *user.Info) (int64, er
 		return 0, err
 	}
 
+	q := db.Query{
+		Name:     "user_repository.Create",
+		QueryRaw: query,
+	}
+
 	var userID int64
-	err = u.pool.QueryRow(ctx, query, args...).Scan(&userID)
+	err = u.db.DB().QueryRowContext(ctx, q, args...).Scan(&userID)
 	if err != nil {
 		return 0, err
 	}
@@ -54,7 +60,7 @@ func (u *UserRepository) Create(ctx context.Context, info *user.Info) (int64, er
 }
 
 // Get - .
-func (u *UserRepository) Get(ctx context.Context, id int64) (*user.User, error) {
+func (u *Repository) Get(ctx context.Context, id int64) (*serviceModel.User, error) {
 	builderSelect := sq.Select(colID, colName, colEmail, colPassword, colRole, colCreatedAt, colUpdatedAt).
 		From(tableName).
 		PlaceholderFormat(sq.Dollar).
@@ -65,25 +71,23 @@ func (u *UserRepository) Get(ctx context.Context, id int64) (*user.User, error) 
 		return nil, err
 	}
 
-	var newUser user.User
-	var updatedAt sql.NullTime
+	q := db.Query{
+		Name:     "user_repository.Get",
+		QueryRaw: query,
+	}
 
-	row := u.pool.QueryRow(ctx, query, args...)
-	err = row.Scan(&newUser.ID, &newUser.Info.Name, &newUser.Info.Email, &newUser.Info.Password, &newUser.Info.Role,
-		&newUser.CreatedAt, &updatedAt)
+	var newUser modelRepo.User
+
+	err = u.db.DB().ScanOneContext(ctx, &newUser, q, args...)
 	if err != nil {
 		return nil, err
 	}
-	if updatedAt.Valid {
-		newUser.UpdatedAt.Time = updatedAt.Time
-		newUser.UpdatedAt.Valid = updatedAt.Valid
-	}
 
-	return &newUser, nil
+	return converter.ToServiceUser(&newUser), nil
 }
 
 // Update - .
-func (u *UserRepository) Update(ctx context.Context, id int64, info *user.Info) error {
+func (u *Repository) Update(ctx context.Context, id int64, info *serviceModel.Info) error {
 	builderUpdate := sq.Update(tableName).
 		PlaceholderFormat(sq.Dollar).
 		Set(colName, info.Name).
@@ -97,7 +101,12 @@ func (u *UserRepository) Update(ctx context.Context, id int64, info *user.Info) 
 		return err
 	}
 
-	_, err = u.pool.Exec(ctx, query, args...)
+	q := db.Query{
+		Name:     "user_repository.Update",
+		QueryRaw: query,
+	}
+
+	_, err = u.db.DB().ExecContext(ctx, q, args...)
 	if err != nil {
 		return err
 	}
@@ -106,7 +115,7 @@ func (u *UserRepository) Update(ctx context.Context, id int64, info *user.Info) 
 }
 
 // Delete - .
-func (u *UserRepository) Delete(ctx context.Context, id int64) error {
+func (u *Repository) Delete(ctx context.Context, id int64) error {
 	builderDelete := sq.Delete(tableName).
 		PlaceholderFormat(sq.Dollar).
 		Where(sq.Eq{colID: id})
@@ -116,7 +125,12 @@ func (u *UserRepository) Delete(ctx context.Context, id int64) error {
 		return err
 	}
 
-	_, err = u.pool.Exec(ctx, query, args...)
+	q := db.Query{
+		Name:     "user_repository.Delete",
+		QueryRaw: query,
+	}
+
+	_, err = u.db.DB().ExecContext(ctx, q, args...)
 	if err != nil {
 		return err
 	}

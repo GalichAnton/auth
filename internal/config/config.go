@@ -12,8 +12,8 @@ func Load(path string) error {
 	return nil
 }
 
-// GRPC - .
-type GRPC interface {
+// GRPCConfig - .
+type GRPCConfig interface {
 	Address() string
 }
 

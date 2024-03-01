@@ -3,7 +3,7 @@ module github.com/GalichAnton/auth
 go 1.21
 
 require (
-	github.com/GalichAnton/platform_common v0.0.0-20240229173700-13a6d2a86274
+	github.com/GalichAnton/platform_common v0.0.0-20240301110738-01c0e9fecd54
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/gojuno/minimock/v3 v3.3.6

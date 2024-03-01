@@ -1,6 +1,8 @@
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/GalichAnton/platform_common v0.0.0-20240229173700-13a6d2a86274 h1:0Uk+vv6/twR4Th9q7qwqaEMJnT0LFD19mcYpfooL81w=
 github.com/GalichAnton/platform_common v0.0.0-20240229173700-13a6d2a86274/go.mod h1:99pOM7ASkDmJ+09qG+Mrsa4VRGCTBnmOGFULgWY34EI=
+github.com/GalichAnton/platform_common v0.0.0-20240301110738-01c0e9fecd54 h1:3bqc/fIhTCyoUHRAx4WmEMLNmDCNlOtP9RxQNSof+4s=
+github.com/GalichAnton/platform_common v0.0.0-20240301110738-01c0e9fecd54/go.mod h1:99pOM7ASkDmJ+09qG+Mrsa4VRGCTBnmOGFULgWY34EI=
 github.com/Masterminds/semver/v3 v3.1.1/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0cBrbBpGY/8hQs=
 github.com/Masterminds/squirrel v1.5.4 h1:uUcX/aBc8O7Fg9kaISIUsHXdKuqehiXAMQTYX8afzqM=
 github.com/Masterminds/squirrel v1.5.4/go.mod h1:NNaOrjSoIDfDA40n7sr2tPNZRfjzjA400rg+riTZj10=

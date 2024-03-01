@@ -10,6 +10,7 @@ import (
 	"github.com/GalichAnton/auth/internal/repository"
 	userService "github.com/GalichAnton/auth/internal/services/user"
 	"github.com/GalichAnton/platform_common/pkg/db"
+	txMocks "github.com/GalichAnton/platform_common/pkg/db/mocks"
 	"github.com/GalichAnton/platform_common/pkg/db/pg"
 	"github.com/GalichAnton/platform_common/pkg/db/transaction"
 	"github.com/brianvoe/gofakeit/v6"
@@ -30,7 +31,7 @@ func (s *TestSuite) TestCreate() {
 
 	var (
 		txOpts = pgx.TxOptions{IsoLevel: pgx.ReadCommitted}
-		txM    TxMock
+		txM    txMocks.TxMock
 		ctx    = context.Background()
 
 		id                    = gofakeit.Int64()
@@ -110,7 +111,6 @@ func (s *TestSuite) TestCreate() {
 			},
 			txTransactorMock: func() db.Transactor {
 				return s.txTransactorMock.BeginTxMock.Expect(ctx, txOpts).Return(&txM, nil)
-
 			},
 		},
 		{

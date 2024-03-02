@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/GalichAnton/auth/internal/client/db"
 	serviceModel "github.com/GalichAnton/auth/internal/models/log"
+	"github.com/GalichAnton/platform_common/pkg/db"
 	sq "github.com/Masterminds/squirrel"
 )
 

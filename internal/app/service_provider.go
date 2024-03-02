@@ -5,10 +5,6 @@ import (
 	"log"
 
 	"github.com/GalichAnton/auth/internal/api/user"
-	"github.com/GalichAnton/auth/internal/client/db"
-	"github.com/GalichAnton/auth/internal/client/db/pg"
-	"github.com/GalichAnton/auth/internal/client/db/transaction"
-	"github.com/GalichAnton/auth/internal/closer"
 	"github.com/GalichAnton/auth/internal/config"
 	"github.com/GalichAnton/auth/internal/config/env"
 	"github.com/GalichAnton/auth/internal/repository"
@@ -16,6 +12,10 @@ import (
 	userRepository "github.com/GalichAnton/auth/internal/repository/user"
 	"github.com/GalichAnton/auth/internal/services"
 	userService "github.com/GalichAnton/auth/internal/services/user"
+	"github.com/GalichAnton/platform_common/pkg/closer"
+	"github.com/GalichAnton/platform_common/pkg/db"
+	"github.com/GalichAnton/platform_common/pkg/db/pg"
+	"github.com/GalichAnton/platform_common/pkg/db/transaction"
 )
 
 type serviceProvider struct {

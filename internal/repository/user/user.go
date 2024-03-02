@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/GalichAnton/auth/internal/client/db"
 	serviceModel "github.com/GalichAnton/auth/internal/models/user"
 	"github.com/GalichAnton/auth/internal/repository/user/converter"
 	modelRepo "github.com/GalichAnton/auth/internal/repository/user/model"
+	"github.com/GalichAnton/platform_common/pkg/db"
 	sq "github.com/Masterminds/squirrel"
 )
 

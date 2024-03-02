@@ -54,7 +54,7 @@ test:
 .PHONY: test-coverage
 test-coverage:
 	go clean -testcache
-	go test ./... -coverprofile=coverage.tmp.out -covermode count -coverpkg=github.com/GalichAnton/auth/internal/service/...,github.com/github.com/GalichAnton/auth/internal/api/... -count 5
+	go test ./... -coverprofile=coverage.tmp.out -covermode count -coverpkg=github.com/GalichAnton/auth/internal/services/...,github.com/github.com/GalichAnton/auth/internal/api/... -count 5
 	grep -v 'mocks\|config' coverage.tmp.out  > coverage.out
 	rm coverage.tmp.out
 	go tool cover -html=coverage.out;

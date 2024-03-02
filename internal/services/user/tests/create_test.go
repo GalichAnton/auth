@@ -2,7 +2,6 @@ package tests
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/GalichAnton/auth/internal/models/log"
@@ -41,8 +40,8 @@ func (s *TestSuite) TestCreate() {
 		password              = gofakeit.Password(true, true, true, true, true, 4)
 		passwordConfirm       = password
 
-		repoErr     = fmt.Errorf("repo error")
-		passwordErr = fmt.Errorf("password and password confirmation do not match")
+		repoErr     = errors.New("repo error")
+		passwordErr = errors.New("password and password confirmation do not match")
 		txError     = errors.Wrap(repoErr, "failed executing code inside transaction")
 
 		userInfo = &user.Info{
@@ -147,7 +146,6 @@ func (s *TestSuite) TestCreate() {
 				response, err := service.Create(tt.args.ctx, tt.args.req)
 				if err != nil {
 					s.Require().Equal(tt.err.Error(), err.Error())
-					return
 				}
 				s.Require().Equal(tt.want, response)
 			},

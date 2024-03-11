@@ -27,6 +27,8 @@ import (
 	_ "github.com/GalichAnton/auth/statik"
 )
 
+const readHeaderTimeout = 5 * time.Second
+
 var configPath string
 
 func init() {
@@ -183,7 +185,7 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 	a.httpServer = &http.Server{
 		Addr:              a.serviceProvider.HTTPConfig().Address(),
 		Handler:           corsMiddleware.Handler(mux),
-		ReadHeaderTimeout: 5 * time.Second,
+		ReadHeaderTimeout: readHeaderTimeout,
 	}
 
 	return nil
@@ -213,7 +215,7 @@ func (a *App) initSwaggerServer(_ context.Context) error {
 	a.swaggerServer = &http.Server{
 		Addr:              a.serviceProvider.SwaggerConfig().Address(),
 		Handler:           mux,
-		ReadHeaderTimeout: 5 * time.Second,
+		ReadHeaderTimeout: readHeaderTimeout,
 	}
 
 	return nil

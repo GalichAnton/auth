@@ -145,6 +145,7 @@ func (u *Repository) Delete(ctx context.Context, id int64) error {
 	return nil
 }
 
+// GetByEmail ...
 func (u *Repository) GetByEmail(ctx context.Context, email string) (*serviceModel.User, error) {
 	builderSelect := sq.Select(colID, colName, colEmail, colPassword, colRole, colCreatedAt, colUpdatedAt).
 		From(tableName).

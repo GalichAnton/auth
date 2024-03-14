@@ -8,6 +8,7 @@ import (
 	"github.com/Masterminds/squirrel"
 )
 
+// Repository ...
 type Repository struct {
 	db db.Client
 }
@@ -17,6 +18,7 @@ func NewRoleRepository(db db.Client) *Repository {
 	return &Repository{db: db}
 }
 
+// GetAllRolePermissions ...
 func (r *Repository) GetAllRolePermissions(ctx context.Context) ([]role.Permission, error) {
 	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 

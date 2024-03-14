@@ -8,12 +8,15 @@ import (
 )
 
 const (
-	refreshTokenSecretKey  = "REFRESH_TOKEN_SECRET"
-	accessTokenSecretKey   = "ACCESS_TOKEN_SECRET"
+	// #nosec G101
+	refreshTokenSecretKey = "REFRESH_TOKEN_SECRET"
+	accessTokenSecretKey  = "ACCESS_TOKEN_SECRET"
+	// #nosec G101
 	refreshTokenExpiration = "REFRESH_TOKEN_EXPIRATION"
 	accessTokenExpiration  = "ACCESS_TOKEN_EXPIRATION"
 )
 
+// TokensConfig ...
 type TokensConfig interface {
 	Config() *tokensConfig
 }

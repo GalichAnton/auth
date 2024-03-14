@@ -72,3 +72,15 @@ func NewTokensConfig() (TokensConfig, error) {
 func (cfg *tokensConfig) Config() *tokensConfig {
 	return cfg
 }
+
+type TokensConfigMock struct {
+}
+
+func (m *TokensConfigMock) Config() *tokensConfig {
+	return &tokensConfig{
+		RefreshSecret:     "test_refresh_secret",
+		AccessSecret:      "test_access_secret",
+		RefreshExpiration: time.Hour * 24,
+		AccessExpiration:  time.Minute * 15,
+	}
+}

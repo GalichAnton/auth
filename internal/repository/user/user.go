@@ -9,6 +9,7 @@ import (
 	modelRepo "github.com/GalichAnton/auth/internal/repository/user/model"
 	"github.com/GalichAnton/platform_common/pkg/db"
 	sq "github.com/Masterminds/squirrel"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -17,7 +18,7 @@ const (
 	colName      = "name"
 	colEmail     = "email"
 	colPassword  = "password"
-	colRole      = "role"
+	colRole      = "role_id"
 	colCreatedAt = "created_at"
 	colUpdatedAt = "updated_at"
 )
@@ -34,6 +35,12 @@ func NewUserRepository(db db.Client) *Repository {
 
 // Create - .
 func (u *Repository) Create(ctx context.Context, info *serviceModel.Info) (int64, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(info.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return 0, err
+	}
+	info.Password = string(hashedPassword)
+
 	builderInsert := sq.Insert(tableName).
 		PlaceholderFormat(sq.Dollar).
 		Columns(colName, colEmail, colPassword, colRole, colCreatedAt).
@@ -136,4 +143,30 @@ func (u *Repository) Delete(ctx context.Context, id int64) error {
 	}
 
 	return nil
+}
+
+func (u *Repository) GetByEmail(ctx context.Context, email string) (*serviceModel.User, error) {
+	builderSelect := sq.Select(colID, colName, colEmail, colPassword, colRole, colCreatedAt, colUpdatedAt).
+		From(tableName).
+		PlaceholderFormat(sq.Dollar).
+		Where(sq.Eq{colEmail: email})
+
+	query, args, err := builderSelect.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	q := db.Query{
+		Name:     "user_repository.GetByEmail",
+		QueryRaw: query,
+	}
+
+	var newUser modelRepo.User
+
+	err = u.db.DB().ScanOneContext(ctx, &newUser, q, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	return converter.ToServiceUser(&newUser), nil
 }

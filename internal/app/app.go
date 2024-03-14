@@ -14,6 +14,8 @@ import (
 	"github.com/GalichAnton/auth/internal/config"
 	"github.com/GalichAnton/auth/internal/config/env"
 	"github.com/GalichAnton/auth/internal/interceptor"
+	descAccess "github.com/GalichAnton/auth/pkg/access_v1"
+	descAuth "github.com/GalichAnton/auth/pkg/auth_v1"
 	desc "github.com/GalichAnton/auth/pkg/user_v1"
 	"github.com/GalichAnton/platform_common/pkg/closer"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -141,6 +143,8 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 	reflection.Register(a.grpcServer)
 
 	desc.RegisterUserV1Server(a.grpcServer, a.serviceProvider.UserImpl(ctx))
+	descAuth.RegisterAuthV1Server(a.grpcServer, a.serviceProvider.AuthImpl(ctx))
+	descAccess.RegisterAccessV1Server(a.grpcServer, a.serviceProvider.AccessImpl(ctx))
 
 	return nil
 }

@@ -2,6 +2,7 @@ package converter
 
 import (
 	modelService "github.com/GalichAnton/auth/internal/models/user"
+	auth "github.com/GalichAnton/auth/pkg/auth_v1"
 	desc "github.com/GalichAnton/auth/pkg/user_v1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -51,5 +52,13 @@ func ToServiceUserToCreate(info *desc.UserToCreate) *modelService.ToCreate {
 			Role:     int32(info.Role),
 		},
 		PasswordConfirm: info.PasswordConfirm,
+	}
+}
+
+// ToServiceLogin ...
+func ToServiceLogin(info *auth.LoginRequest) *modelService.Login {
+	return &modelService.Login{
+		Email:    info.Email,
+		Password: info.Password,
 	}
 }

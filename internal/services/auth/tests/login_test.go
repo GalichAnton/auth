@@ -11,6 +11,7 @@ import (
 	modelService "github.com/GalichAnton/auth/internal/models/user"
 	"github.com/GalichAnton/auth/internal/repository"
 	repoMocks "github.com/GalichAnton/auth/internal/repository/mocks"
+	"github.com/GalichAnton/auth/internal/repository/user/model"
 	authService "github.com/GalichAnton/auth/internal/services/auth"
 	"github.com/GalichAnton/auth/internal/utils"
 	"github.com/brianvoe/gofakeit/v6"
@@ -38,6 +39,10 @@ func TestLogin(t *testing.T) {
 		hashedPW, _       = bcrypt.GenerateFromPassword([]byte(pw), bcrypt.DefaultCost)
 		tcm         env.TokensConfigMock
 		repoErr     = fmt.Errorf("repo error")
+
+		filter = model.Filter{
+			Email: &email,
+		}
 
 		user = &modelService.User{
 			Info: modelService.Info{
@@ -72,7 +77,7 @@ func TestLogin(t *testing.T) {
 	tests := []struct {
 		name               string
 		args               args
-		want               *string
+		want               string
 		err                error
 		userRepositoryMock userRepositoryMockFunc
 		tokensConfigMock   env.TokensConfigMock
@@ -83,11 +88,11 @@ func TestLogin(t *testing.T) {
 				ctx:       ctx,
 				loginData: loginData,
 			},
-			want: &refreshToken,
+			want: refreshToken,
 			err:  nil,
 			userRepositoryMock: func(mc *minimock.Controller) repository.UserRepository {
 				mock := repoMocks.NewUserRepositoryMock(mc)
-				mock.GetByEmailMock.Expect(ctx, email).Return(user, nil)
+				mock.GetMock.Expect(ctx, filter).Return(user, nil)
 				return mock
 			},
 		},
@@ -97,11 +102,11 @@ func TestLogin(t *testing.T) {
 				ctx:       ctx,
 				loginData: loginData,
 			},
-			want: nil,
+			want: "",
 			err:  repoErr,
 			userRepositoryMock: func(mc *minimock.Controller) repository.UserRepository {
 				mock := repoMocks.NewUserRepositoryMock(mc)
-				mock.GetByEmailMock.Expect(ctx, email).Return(nil, repoErr)
+				mock.GetMock.Expect(ctx, filter).Return(nil, repoErr)
 				return mock
 			},
 		},
@@ -111,11 +116,11 @@ func TestLogin(t *testing.T) {
 				ctx:       ctx,
 				loginData: wrongLoginData,
 			},
-			want: nil,
+			want: "",
 			err:  repoErr,
 			userRepositoryMock: func(mc *minimock.Controller) repository.UserRepository {
 				mock := repoMocks.NewUserRepositoryMock(mc)
-				mock.GetByEmailMock.Expect(ctx, email).Return(user, repoErr)
+				mock.GetMock.Expect(ctx, filter).Return(user, repoErr)
 				return mock
 			},
 		},

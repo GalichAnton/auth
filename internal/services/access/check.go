@@ -9,13 +9,15 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+const authKey = "authorization"
+
 func (s *service) Check(ctx context.Context, address string) error {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return errors.New("metadata is not provided")
 	}
 
-	authHeader, ok := md["authorization"]
+	authHeader, ok := md[authKey]
 	if !ok || len(authHeader) == 0 {
 		return errors.New("authorization header is not provided")
 	}

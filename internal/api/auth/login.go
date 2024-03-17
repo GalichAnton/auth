@@ -15,6 +15,6 @@ func (i *Implementation) Login(ctx context.Context, req *desc.LoginRequest) (*de
 	}
 
 	return &desc.LoginResponse{
-		RefreshToken: *refreshToken,
+		RefreshToken: refreshToken,
 	}, nil
 }

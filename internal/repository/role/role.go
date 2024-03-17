@@ -8,6 +8,13 @@ import (
 	"github.com/Masterminds/squirrel"
 )
 
+const (
+	roleID        = "r.id"
+	rolePerm      = "rp.permission"
+	rolePermTable = "role_permissions rp"
+	rolesTable    = "roles r ON r.id = rp.role_id"
+)
+
 // Repository ...
 type Repository struct {
 	db db.Client
@@ -22,9 +29,7 @@ func NewRoleRepository(db db.Client) *Repository {
 func (r *Repository) GetAllRolePermissions(ctx context.Context) ([]role.Permission, error) {
 	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 
-	selectBuilder := psql.Select("r.id, rp.permission").
-		From("role_permissions rp").
-		Join("roles r ON r.id = rp.role_id")
+	selectBuilder := psql.Select(roleID, rolePerm).From(rolePermTable).Join(rolesTable)
 
 	query, args, err := selectBuilder.ToSql()
 	if err != nil {

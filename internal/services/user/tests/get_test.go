@@ -9,6 +9,7 @@ import (
 
 	"github.com/GalichAnton/auth/internal/models/user"
 	"github.com/GalichAnton/auth/internal/repository"
+	"github.com/GalichAnton/auth/internal/repository/user/model"
 	userService "github.com/GalichAnton/auth/internal/services/user"
 	"github.com/GalichAnton/platform_common/pkg/db"
 	"github.com/GalichAnton/platform_common/pkg/db/transaction"
@@ -36,6 +37,10 @@ func (s *TestSuite) TestGet() {
 		password        = gofakeit.Password(true, true, true, true, true, 4)
 		createdAt       = time.Now()
 		repoErr         = fmt.Errorf("repo error")
+
+		filter = model.Filter{
+			ID: &id,
+		}
 
 		userInfo = user.Info{
 			Name:     name,
@@ -70,7 +75,7 @@ func (s *TestSuite) TestGet() {
 			want: result,
 			err:  nil,
 			userRepositoryMock: func() repository.UserRepository {
-				return s.userRepositoryMock.GetMock.Expect(ctx, id).Return(result, nil)
+				return s.userRepositoryMock.GetMock.Expect(ctx, filter).Return(result, nil)
 
 			},
 			logRepositoryMock: func() repository.LogRepository {
@@ -89,7 +94,7 @@ func (s *TestSuite) TestGet() {
 			want: result,
 			err:  repoErr,
 			userRepositoryMock: func() repository.UserRepository {
-				return s.userRepositoryMock.GetMock.Expect(ctx, id).Return(nil, repoErr)
+				return s.userRepositoryMock.GetMock.Expect(ctx, filter).Return(nil, repoErr)
 			},
 			logRepositoryMock: func() repository.LogRepository {
 				return s.logRepositoryMock

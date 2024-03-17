@@ -20,3 +20,9 @@ type Info struct {
 	Password string `db:"password"`
 	Role     int32  `db:"role_id"`
 }
+
+// Filter ...
+type Filter struct {
+	ID    *int64
+	Email *string
+}

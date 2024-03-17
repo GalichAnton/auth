@@ -16,6 +16,6 @@ func (i *Implementation) GetAccessToken(
 	}
 
 	return &desc.GetAccessTokenResponse{
-		AccessToken: *accessToken,
+		AccessToken: accessToken,
 	}, nil
 }

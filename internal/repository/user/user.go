@@ -34,7 +34,7 @@ func NewUserRepository(db db.Client) *Repository {
 }
 
 // Create - .
-func (u *Repository) Create(ctx context.Context, info *serviceModel.Info) (int64, error) {
+func (r *Repository) Create(ctx context.Context, info *serviceModel.Info) (int64, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(info.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return 0, err
@@ -58,7 +58,7 @@ func (u *Repository) Create(ctx context.Context, info *serviceModel.Info) (int64
 	}
 
 	var userID int64
-	err = u.db.DB().QueryRowContext(ctx, q, args...).Scan(&userID)
+	err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(&userID)
 	if err != nil {
 		return 0, err
 	}
@@ -67,11 +67,18 @@ func (u *Repository) Create(ctx context.Context, info *serviceModel.Info) (int64
 }
 
 // Get - .
-func (u *Repository) Get(ctx context.Context, id int64) (*serviceModel.User, error) {
+func (r *Repository) Get(ctx context.Context, filter modelRepo.Filter) (*serviceModel.User, error) {
 	builderSelect := sq.Select(colID, colName, colEmail, colPassword, colRole, colCreatedAt, colUpdatedAt).
 		From(tableName).
-		PlaceholderFormat(sq.Dollar).
-		Where(sq.Eq{colID: id})
+		PlaceholderFormat(sq.Dollar)
+
+	if filter.ID != nil {
+		builderSelect = builderSelect.Where(sq.Eq{colID: *filter.ID})
+	}
+
+	if filter.Email != nil {
+		builderSelect = builderSelect.Where(sq.Eq{colEmail: *filter.Email})
+	}
 
 	query, args, err := builderSelect.ToSql()
 	if err != nil {
@@ -85,7 +92,7 @@ func (u *Repository) Get(ctx context.Context, id int64) (*serviceModel.User, err
 
 	var newUser modelRepo.User
 
-	err = u.db.DB().ScanOneContext(ctx, &newUser, q, args...)
+	err = r.db.DB().ScanOneContext(ctx, &newUser, q, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +101,7 @@ func (u *Repository) Get(ctx context.Context, id int64) (*serviceModel.User, err
 }
 
 // Update - .
-func (u *Repository) Update(ctx context.Context, id int64, info *serviceModel.Info) error {
+func (r *Repository) Update(ctx context.Context, id int64, info *serviceModel.Info) error {
 	builderUpdate := sq.Update(tableName).
 		PlaceholderFormat(sq.Dollar).
 		Set(colName, info.Name).
@@ -113,7 +120,7 @@ func (u *Repository) Update(ctx context.Context, id int64, info *serviceModel.In
 		QueryRaw: query,
 	}
 
-	_, err = u.db.DB().ExecContext(ctx, q, args...)
+	_, err = r.db.DB().ExecContext(ctx, q, args...)
 	if err != nil {
 		return err
 	}
@@ -122,7 +129,7 @@ func (u *Repository) Update(ctx context.Context, id int64, info *serviceModel.In
 }
 
 // Delete - .
-func (u *Repository) Delete(ctx context.Context, id int64) error {
+func (r *Repository) Delete(ctx context.Context, id int64) error {
 	builderDelete := sq.Delete(tableName).
 		PlaceholderFormat(sq.Dollar).
 		Where(sq.Eq{colID: id})
@@ -137,37 +144,10 @@ func (u *Repository) Delete(ctx context.Context, id int64) error {
 		QueryRaw: query,
 	}
 
-	_, err = u.db.DB().ExecContext(ctx, q, args...)
+	_, err = r.db.DB().ExecContext(ctx, q, args...)
 	if err != nil {
 		return err
 	}
 
 	return nil
-}
-
-// GetByEmail ...
-func (u *Repository) GetByEmail(ctx context.Context, email string) (*serviceModel.User, error) {
-	builderSelect := sq.Select(colID, colName, colEmail, colPassword, colRole, colCreatedAt, colUpdatedAt).
-		From(tableName).
-		PlaceholderFormat(sq.Dollar).
-		Where(sq.Eq{colEmail: email})
-
-	query, args, err := builderSelect.ToSql()
-	if err != nil {
-		return nil, err
-	}
-
-	q := db.Query{
-		Name:     "user_repository.GetByEmail",
-		QueryRaw: query,
-	}
-
-	var newUser modelRepo.User
-
-	err = u.db.DB().ScanOneContext(ctx, &newUser, q, args...)
-	if err != nil {
-		return nil, err
-	}
-
-	return converter.ToServiceUser(&newUser), nil
 }

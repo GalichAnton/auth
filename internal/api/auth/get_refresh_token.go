@@ -16,6 +16,6 @@ func (i *Implementation) GetRefreshToken(
 	}
 
 	return &desc.GetRefreshTokenResponse{
-		RefreshToken: *refreshToken,
+		RefreshToken: refreshToken,
 	}, nil
 }

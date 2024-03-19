@@ -61,7 +61,7 @@ message UserToCreate {
   // Email пользователя
   string email = 2 [(validate.rules).string.email = true];
   // Пароль пользователя
-  string password = 3 [(validate.rules).string = {min_len: 6, max_len: 24}];;
+  string password = 3 [(validate.rules).string = {min_len: 6, max_len: 24}];
   string password_confirm = 4;
   Role role = 5;
 }

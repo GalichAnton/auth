@@ -28,7 +28,7 @@ func NewLogRepository(db db.Client) *LogRepository {
 }
 
 // Create - .
-func (u *LogRepository) Create(ctx context.Context, log *serviceModel.Info) error {
+func (l *LogRepository) Create(ctx context.Context, log *serviceModel.Info) error {
 	builderInsert := sq.Insert(tableName).
 		PlaceholderFormat(sq.Dollar).
 		Columns(colAction, colEntityID, colCreatedAt).
@@ -44,7 +44,7 @@ func (u *LogRepository) Create(ctx context.Context, log *serviceModel.Info) erro
 		QueryRaw: query,
 	}
 
-	_, err = u.db.DB().ExecContext(ctx, q, args...)
+	_, err = l.db.DB().ExecContext(ctx, q, args...)
 	if err != nil {
 		return err
 	}

@@ -6,6 +6,7 @@ import (
 
 	"github.com/GalichAnton/auth/internal/models/log"
 	modelService "github.com/GalichAnton/auth/internal/models/user"
+	"github.com/jackc/pgconn"
 )
 
 func (s *service) Create(ctx context.Context, info *modelService.ToCreate) (int64, error) {
@@ -43,9 +44,13 @@ func (s *service) Create(ctx context.Context, info *modelService.ToCreate) (int6
 			return nil
 		},
 	)
-
 	if err != nil {
-		return 0, err
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			if pgErr.Code == "23505" {
+				return 0, errors.New("a user with this email already exists")
+			}
+		}
 	}
 
 	return newUserID, nil

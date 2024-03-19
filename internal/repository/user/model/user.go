@@ -18,5 +18,11 @@ type Info struct {
 	Name     string `db:"name"`
 	Email    string `db:"email"`
 	Password string `db:"password"`
-	Role     int32  `db:"role"`
+	Role     int32  `db:"role_id"`
+}
+
+// Filter ...
+type Filter struct {
+	ID    *int64
+	Email *string
 }

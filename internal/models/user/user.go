@@ -26,3 +26,9 @@ type ToCreate struct {
 	Info
 	PasswordConfirm string
 }
+
+// Login ...
+type Login struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}

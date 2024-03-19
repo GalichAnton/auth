@@ -1,11 +1,33 @@
 -- +goose Up
 -- +goose StatementBegin
+create type role_type as enum ('unknown', 'user', 'admin');
+
+create table if not exists roles (
+    id integer primary key,
+    name role_type not null
+);
+
+insert into roles (id, name)
+values (0, 'unknown'), (1, 'user'), (2, 'admin');
+
+create table if not exists role_permissions (
+    id serial primary key,
+    role_id integer not null references roles(id),
+    permission text not null
+);
+
+insert into role_permissions (role_id, permission)
+values
+    ((select id from roles where name = 'user'), '/ChatV1/SendMessage'),
+    ((select id from roles where name = 'admin'), '/ChatV1/Delete'),
+    ((select id from roles where name = 'admin'), '/ChatV1/Create');
+
 create table if not exists users (
     id serial primary key,
     name text not null,
-    email text not null,
+    email text not null unique,
     password text not null,
-    role int not null,
+    role_id integer not null references roles(id),
     created_at timestamp not null default now(),
     updated_at timestamp
 );

@@ -4,13 +4,18 @@ import (
 	"context"
 	"log"
 
+	"github.com/GalichAnton/auth/internal/api/access"
+	"github.com/GalichAnton/auth/internal/api/auth"
 	"github.com/GalichAnton/auth/internal/api/user"
 	"github.com/GalichAnton/auth/internal/config"
 	"github.com/GalichAnton/auth/internal/config/env"
 	"github.com/GalichAnton/auth/internal/repository"
 	logRepository "github.com/GalichAnton/auth/internal/repository/log"
+	roleRepository "github.com/GalichAnton/auth/internal/repository/role"
 	userRepository "github.com/GalichAnton/auth/internal/repository/user"
 	"github.com/GalichAnton/auth/internal/services"
+	accessService "github.com/GalichAnton/auth/internal/services/access"
+	authService "github.com/GalichAnton/auth/internal/services/auth"
 	userService "github.com/GalichAnton/auth/internal/services/user"
 	"github.com/GalichAnton/platform_common/pkg/closer"
 	"github.com/GalichAnton/platform_common/pkg/db"
@@ -23,15 +28,21 @@ type serviceProvider struct {
 	grpcConfig    config.GRPCConfig
 	httpConfig    config.HTTPConfig
 	swaggerConfig config.SwaggerConfig
+	tokensConfig  env.TokensConfig
 
 	dbClient       db.Client
 	txManager      db.TxManager
 	userRepository repository.UserRepository
 	logRepository  repository.LogRepository
+	roleRepository repository.RoleRepository
 
-	userService services.UserService
+	userService   services.UserService
+	authService   services.AuthService
+	accessService services.AccessService
 
-	userImpl *user.Implementation
+	userImpl   *user.Implementation
+	authImpl   *auth.Implementation
+	accessImpl *access.Implementation
 }
 
 func newServiceProvider() *serviceProvider {
@@ -75,6 +86,19 @@ func (s *serviceProvider) HTTPConfig() config.HTTPConfig {
 	}
 
 	return s.httpConfig
+}
+
+func (s *serviceProvider) TokensConfig() env.TokensConfig {
+	if s.tokensConfig == nil {
+		cfg, err := env.NewTokensConfig()
+		if err != nil {
+			log.Fatalf("failed to get tokens config: %s", err.Error())
+		}
+
+		s.tokensConfig = cfg
+	}
+
+	return s.tokensConfig
 }
 
 func (s *serviceProvider) SwaggerConfig() config.SwaggerConfig {
@@ -133,6 +157,14 @@ func (s *serviceProvider) LogRepository(ctx context.Context) repository.LogRepos
 	return s.logRepository
 }
 
+func (s *serviceProvider) RoleRepository(ctx context.Context) repository.RoleRepository {
+	if s.roleRepository == nil {
+		s.roleRepository = roleRepository.NewRoleRepository(s.DBClient(ctx))
+	}
+
+	return s.roleRepository
+}
+
 func (s *serviceProvider) UserService(ctx context.Context) services.UserService {
 	if s.userService == nil {
 		s.userService = userService.NewService(
@@ -145,10 +177,48 @@ func (s *serviceProvider) UserService(ctx context.Context) services.UserService 
 	return s.userService
 }
 
+func (s *serviceProvider) AuthService(ctx context.Context) services.AuthService {
+	if s.authService == nil {
+		s.authService = authService.NewService(
+			s.UserRepository(ctx),
+			s.TokensConfig(),
+		)
+	}
+
+	return s.authService
+}
+
+func (s *serviceProvider) AccessService(ctx context.Context) services.AccessService {
+	if s.accessService == nil {
+		s.accessService = accessService.NewService(
+			s.RoleRepository(ctx),
+			s.TokensConfig(),
+		)
+	}
+
+	return s.accessService
+}
+
 func (s *serviceProvider) UserImpl(ctx context.Context) *user.Implementation {
 	if s.userImpl == nil {
 		s.userImpl = user.NewImplementation(s.UserService(ctx))
 	}
 
 	return s.userImpl
+}
+
+func (s *serviceProvider) AuthImpl(ctx context.Context) *auth.Implementation {
+	if s.authImpl == nil {
+		s.authImpl = auth.NewImplementation(s.AuthService(ctx))
+	}
+
+	return s.authImpl
+}
+
+func (s *serviceProvider) AccessImpl(ctx context.Context) *access.Implementation {
+	if s.accessImpl == nil {
+		s.accessImpl = access.NewImplementation(s.AccessService(ctx))
+	}
+
+	return s.accessImpl
 }

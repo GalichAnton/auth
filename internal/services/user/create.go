@@ -3,10 +3,10 @@ package user
 import (
 	"context"
 	"errors"
-	"strings"
 
 	"github.com/GalichAnton/auth/internal/models/log"
 	modelService "github.com/GalichAnton/auth/internal/models/user"
+	"github.com/jackc/pgconn"
 )
 
 func (s *service) Create(ctx context.Context, info *modelService.ToCreate) (int64, error) {
@@ -45,10 +45,12 @@ func (s *service) Create(ctx context.Context, info *modelService.ToCreate) (int6
 		},
 	)
 	if err != nil {
-		if strings.Contains(err.Error(), "unique constraint") {
-			return 0, errors.New("a user with this email already exists")
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			if pgErr.Code == "23505" {
+				return 0, errors.New("a user with this email already exists")
+			}
 		}
-		return 0, err
 	}
 
 	return newUserID, nil

@@ -33,3 +33,13 @@ type SwaggerConfig interface {
 type PGConfig interface {
 	DSN() string
 }
+
+// LogConfig ...
+type LogConfig interface {
+	Level() string
+}
+
+// PrometheusConfig ...
+type PrometheusConfig interface {
+	Address() string
+}

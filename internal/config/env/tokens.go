@@ -73,9 +73,11 @@ func (cfg *tokensConfig) Config() *tokensConfig {
 	return cfg
 }
 
+// TokensConfigMock ...
 type TokensConfigMock struct {
 }
 
+//nolint:revive
 func (m *TokensConfigMock) Config() *tokensConfig {
 	return &tokensConfig{
 		RefreshSecret:     "test_refresh_secret",

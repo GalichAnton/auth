@@ -14,11 +14,15 @@ import (
 	"github.com/GalichAnton/auth/internal/config"
 	"github.com/GalichAnton/auth/internal/config/env"
 	"github.com/GalichAnton/auth/internal/interceptor"
+	"github.com/GalichAnton/auth/internal/metric"
 	descAccess "github.com/GalichAnton/auth/pkg/access_v1"
 	descAuth "github.com/GalichAnton/auth/pkg/auth_v1"
 	desc "github.com/GalichAnton/auth/pkg/user_v1"
 	"github.com/GalichAnton/platform_common/pkg/closer"
+	"github.com/GalichAnton/platform_common/pkg/logger"
+	grpcMiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rakyll/statik/fs"
 	"github.com/rs/cors"
 	"google.golang.org/grpc"
@@ -39,10 +43,11 @@ func init() {
 
 // App ...
 type App struct {
-	serviceProvider *serviceProvider
-	grpcServer      *grpc.Server
-	httpServer      *http.Server
-	swaggerServer   *http.Server
+	serviceProvider  *serviceProvider
+	grpcServer       *grpc.Server
+	httpServer       *http.Server
+	swaggerServer    *http.Server
+	prometheusServer *http.Server
 }
 
 // NewApp ...
@@ -64,8 +69,10 @@ func (a *App) Run() error {
 		closer.Wait()
 	}()
 
+	logger.Init(logger.Core(logger.AtomicLevel(a.serviceProvider.LogConfig().Level())))
+
 	wg := sync.WaitGroup{}
-	wg.Add(3)
+	wg.Add(4)
 
 	go func() {
 		defer wg.Done()
@@ -94,6 +101,15 @@ func (a *App) Run() error {
 		}
 	}()
 
+	go func() {
+		defer wg.Done()
+
+		err := a.runPrometheusServer()
+		if err != nil {
+			log.Fatalf("failed to run prometheus server: %v", err)
+		}
+	}()
+
 	wg.Wait()
 
 	return nil
@@ -106,6 +122,8 @@ func (a *App) initDeps(ctx context.Context) error {
 		a.initGRPCServer,
 		a.initHTTPServer,
 		a.initSwaggerServer,
+		a.initPrometheusServer,
+		a.initMetrics,
 	}
 
 	for _, f := range inits {
@@ -137,7 +155,13 @@ func (a *App) initServiceProvider(_ context.Context) error {
 func (a *App) initGRPCServer(ctx context.Context) error {
 	a.grpcServer = grpc.NewServer(
 		grpc.Creds(insecure.NewCredentials()),
-		grpc.UnaryInterceptor(interceptor.ValidateInterceptor),
+		grpc.UnaryInterceptor(
+			grpcMiddleware.ChainUnaryServer(
+				interceptor.LogInterceptor,
+				interceptor.ValidateInterceptor,
+				interceptor.MetricsInterceptor,
+			),
+		),
 	)
 
 	reflection.Register(a.grpcServer)
@@ -291,4 +315,37 @@ func (a *App) serveSwaggerFile(path string) http.HandlerFunc {
 
 		log.Printf("Served swagger file: %s", path)
 	}
+}
+
+func (a *App) initPrometheusServer(_ context.Context) error {
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", promhttp.Handler())
+
+	a.prometheusServer = &http.Server{
+		Addr:              a.serviceProvider.PrometheusConfig().Address(),
+		Handler:           mux,
+		ReadHeaderTimeout: readHeaderTimeout,
+	}
+
+	return nil
+}
+
+func (a *App) runPrometheusServer() error {
+	log.Printf("Prometheus server is running on %s", "localhost:2112")
+
+	err := a.prometheusServer.ListenAndServe()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *App) initMetrics(ctx context.Context) error {
+	err := metric.Init(ctx)
+	if err != nil {
+		log.Fatalf("failed to init metrics: %v", err)
+	}
+
+	return nil
 }

@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (s *service) GetAccessToken(ctx context.Context, refreshToken string) (string, error) {
+func (s *service) GetAccessToken(_ context.Context, refreshToken string) (string, error) {
 	claim, err := utils.VerifyToken(refreshToken, []byte(s.tokensConfig.Config().RefreshSecret))
 	if err != nil {
 		return "", status.Errorf(codes.Aborted, "invalid refresh token")
